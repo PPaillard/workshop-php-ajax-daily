@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Les requêtes AJAX dans un projet PHP</title>
+
+    <link rel="stylesheet" href="assets/css/syntax_monokai.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <script src="assets/js/main.js" type="module"></script>
+    <script src="assets/js/wrappDefault.js" type="module"></script>
+  </head>
+  <body class="has-toc">
+    <header>
+      <div>
+        <h1>Les requêtes AJAX dans un projet PHP</h1>
+        <p>Requêter le serveur, traiter la demande et modifier le DOM</p>
+      </div>
+    </header>
+
+    <nav id="toc-nav">
+      <ol>
+        <li>
+          <a href="#welcome-to-the-daily-bugle">Bienvenue sur le Daily Bugle</a>
+          <ol>
+            <li>
+              <a href="#description">Description</a>
+            </li>
+            <li>
+              <a href="#to-start">Pour commencer</a>
+            </li>
+            <li>
+              <a href="#1-get-a-random-headline-without-reloading-the-page">
+                1. Obtenez un titre aléatoire sans recharger la page
+              </a>
+            </li>
+            <li>
+              <a
+                href="#2-add-a-menu-to-select-a-headline-from-specific-keywords"
+              >
+                2. Ajoutez un menu pour sélectionner un titre à partir de
+                mots-clés spécifiques
+              </a>
+              <ol>
+                <li>
+                  <a href="#prepare-the-route">Préparer la route</a>
+                </li>
+                <li>
+                  <a href="#fetch-the-route-with-the-search-query">
+                    Appeler la route avec la requête de recherche
+                  </a>
+                </li>
+                <li>
+                  <a href="#display-the-response">Afficher la réponse</a>
+                </li>
+              </ol>
+            </li>
+            <li>
+              <a href="#-bonus-titles-clickables"
+                >🎁 Bonus : titres cliquables</a
+              >
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </nav>
+
+    <main id="main">
+      <img
+        class="main-image"
+        src="assets/img/bank-phrom-Tzm3Oyu_6sk-unsplash.jpg"
+        alt="Les requêtes AJAX dans un projet PHP"
+      />
+
+      <div class="widget-clone">
+        <label for="input-clone"> <i class="bi bi-code-slash"></i> Code </label>
+        <div class="input-group">
+          <input
+            type="text"
+            readonly=""
+            value="git clone git@github.com:ppaillard/workshop-php-ajax-daily"
+            id="input-clone"
+          />
+          <button
+            id="copy-button"
+            class="copy-button"
+            aria-label="Copier dans le presse-papiers"
+          >
+            <span class="icon-copy">
+              <i class="bi-clipboard"></i>
+            </span>
+            <span class="icon-check">
+              Copié
+              <i class="bi-check-lg"></i>
+            </span>
+          </button>
+        </div>
+        <div class="text-end">
+          <a
+            href="https://github.com/ppaillard/workshop-php-ajax-daily"
+            target="_blank"
+          >
+            <small
+              >https://github.com/ppaillard/workshop-php-ajax-daily
+              <i class="bi bi-box-arrow-up-right"></i
+            ></small>
+          </a>
+        </div>
+      </div>
+
+      <section class="no-background">
+        <h1 id="welcome-to-the-daily-bugle">Bienvenue sur le Daily Bugle</h1>
+        <p class="text-center">
+          <img src="assets/img/daily-bugle.png" alt="Daily Bugle" />
+        </p>
+      </section>
+
+      <section>
+        <h2 id="description">Description</h2>
+        <p>
+          Vous avez été recruté par <strong>The Daily Bugle</strong> pour
+          remplacer le précédent développeur qui travaillait sur un moyen de
+          changer rapidement le titre principal de la page d'accueil du site.
+        </p>
+        <p>
+          Malheureusement, il n'a pas terminé et a laissé le projet inachevé…
+        </p>
+        <p>C'est maintenant à vous de le finir !</p>
+        <blockquote>
+          <p><strong>Votre objectif</strong> :</p>
+          <ul>
+            <li>Choisir un titre aléatoire sans recharger la page entière.</li>
+            <li>
+              Puis ajouter un menu pour rechercher un titre à l'aide de
+              mots-clés spécifiques (toujours sans recharger la page).
+            </li>
+          </ul>
+        </blockquote>
+        <p>
+          <img src="assets/img/Daily_bugle_logo.webp" alt="Daily Bugle" />
+        </p>
+      </section>
+
+      <section>
+        <h2 id="to-start">Pour commencer</h2>
+        <p class="alert-info">
+          Clonez ce dépôt en utilisant le lien ci-dessus ⬆
+          <a href="#input-clone"><i class="bi bi-code-slash"></i>&nbsp;Code</a>.
+        </p>
+        <p>Ensuite, effectuez les tâches suivantes :</p>
+        <ul>
+          <li>
+            <div class="language-bash highlighter-rouge">
+              <div class="highlight">
+                <pre
+                  class="highlight"
+                ><code><span class="nb">cd </span>workshop-php-ajax-daily-bugle
+</code></pre>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="language-bash highlighter-rouge">
+              <div class="highlight">
+                <pre
+                  class="highlight"
+                ><code>composer <span class="nb">install</span>
+</code></pre>
+              </div>
+            </div>
+          </li>
+          <li>
+            Créez le fichier
+            <code class="language-plaintext highlighter-rouge">db.php</code>
+            à partir du fichier <strong>db.php.dist</strong> avec les
+            identifiants de connexion pour PDO et la base de données
+            <code class="language-plaintext highlighter-rouge"
+              >workshop_php_ajax_daily_bugle</code
+            >.
+          </li>
+          <li>
+            Exécutez la commande php
+            <code class="language-plaintext highlighter-rouge"
+              >php migration.php</code
+            >.
+          </li>
+          <li>
+            Enfin, démarrez le serveur avec la commande
+            <div class="language-bash highlighter-rouge">
+              <div class="highlight">
+                <pre
+                  class="highlight"
+                ><code>php <span class="nt">-S</span> localhost:8000 <span class="nt">-t</span> public
+</code></pre>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 id="1-get-a-random-headline-without-reloading-the-page">
+          1. Obtenez un titre aléatoire sans recharger la page
+        </h2>
+        <ol>
+          <li>
+            <p>
+              Tout d'abord, vous devez préparer le côté serveur. Regardez
+              <code class="language-plaintext highlighter-rouge"
+                >routes.php</code
+              >, vous verrez que la route
+              <code class="language-plaintext highlighter-rouge"
+                >api/articles/random</code
+              >
+              existe déjà. Essayez-la
+              <a href="http://localhost:8000/api/articles/random"
+                >http://localhost:8000/api/articles/random</a
+              >. Oui, rien…
+            </p>
+          </li>
+          <li>
+            <p>
+              Pour corriger cela, allez dans
+              <code class="language-plaintext highlighter-rouge"
+                >AjaxController.php</code
+              >
+              et complétez la fonction
+              <code class="language-plaintext highlighter-rouge"
+                >getRandomArticle()</code
+              >. Cette fonction devrait retourner les données d'un article
+              aléatoire au format JSON (un seul article !).
+            </p>
+          </li>
+        </ol>
+        <p class="alert-info">
+          Astuce 1 : Créez une méthode personnalisée
+          <code class="language-plaintext highlighter-rouge"
+            >selectRandomOne()</code
+          >
+          dans
+          <code class="language-plaintext highlighter-rouge"
+            >ArticleManager</code
+          >.<br />
+          Astuce 2 : Utilisez
+          <code class="language-plaintext highlighter-rouge"
+            >ORDER BY RAND() LIMIT 1</code
+          >
+          dans votre requête pour obtenir un seul résultat aléatoire.
+        </p>
+        <p>
+          Résultat : Si vous avez réussi,
+          <a href="http://localhost:8000/api/articles/random"
+            >http://localhost:8000/api/articles/random</a
+          >
+          devrait ressembler à ceci :
+        </p>
+
+        <div class="language-json highlighter-rouge">
+          <div class="highlight">
+            <pre
+              class="highlight"
+            ><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doctor Octopus holds up another bank !"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Peter Parker"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"picture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assets/images/article_3.jpg"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-04-28 00:00:00"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[ARTICLE_CONTENT]"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code>
+            </pre>
+          </div>
+        </div>
+
+        <ol>
+          <li>
+            Une fois la route prête, passons au côté client. Dans
+            <code class="language-plaintext highlighter-rouge"
+              >public\assets\js\script.js</code
+            >, vous trouverez un commentaire
+            <code class="language-plaintext highlighter-rouge"
+              >//TODO 1 : Get a random article</code
+            >. C'est la partie du code qui sera déclenchée lors du clic sur le
+            bouton « <strong>Changer le titre</strong> ». L'écouteur d'événement
+            est déjà configuré.
+          </li>
+        </ol>
+        <p>
+          C'est ici que vous devez travailler pour contacter la route
+          <code class="language-plaintext highlighter-rouge"
+            >api/articles/random</code
+          >, récupérer les données du titre et mettre à jour la page d'accueil.
+        </p>
+        <p class="alert-info">
+          Astuce 1 : Utilisez
+          <code class="language-plaintext highlighter-rouge">fetch()</code> en
+          JS pour appeler la route.
+          <a
+            href="https://developer.mozilla.org/fr/docs/Web/API/Fetch_API/Using_Fetch"
+            >Documentation sur fetch ici</a
+          >.<br />
+          Astuce 2 : Une fois les données JSON obtenues, utilisez la fonction
+          fournie
+          <code class="language-plaintext highlighter-rouge"
+            >updateHeadline(article)</code
+          >
+          qui mettra à jour le DOM de la page d'accueil avec les données de
+          l'article aléatoire.
+        </p>
+      </section>
+
+      <section>
+        <h2 id="2-add-a-menu-to-select-a-headline-from-specific-keywords">
+          2. Ajoutez un menu pour sélectionner un titre à partir de mots-clés
+          spécifiques
+        </h2>
+        <p>
+          Nous devons maintenant être capables de sélectionner un article
+          spécifique grâce à un mot-clé de son titre. L'ancien développeur a
+          commencé à implémenter cette fonctionnalité dans la div
+          <code class="language-plaintext highlighter-rouge">searchMenu</code>
+          (qui s'ouvre lorsque vous cliquez sur le bouton «
+          <strong> Rechercher un titre spécifique</strong> ») dans
+          <code class="language-plaintext highlighter-rouge"
+            >index.html.twig</code
+          >.
+        </p>
+        <p>
+          Il a également laissé un commentaire
+          <code class="language-plaintext highlighter-rouge">//TODO 2</code>
+          dans
+          <code class="language-plaintext highlighter-rouge">script.js</code>
+          pour déclencher du code lorsque vous tapez quelque chose dans l'input.
+        </p>
+
+        <h3 id="prepare-the-route">Préparer la route</h3>
+        <p>
+          Dans
+          <code class="language-plaintext highlighter-rouge">routes.php</code>,
+          il existe une route
+          <code class="language-plaintext highlighter-rouge"
+            >api/articles/search</code
+          >. Attention, cette route prend un paramètre. Elle fait référence à la
+          méthode
+          <code class="language-plaintext highlighter-rouge"
+            >searchArticles()</code
+          >
+          du
+          <code class="language-plaintext highlighter-rouge"
+            >AjaxController</code
+          >. Préparez d'abord cette route pour qu'elle retourne tous les
+          articles contenant dans leur titre le mot passé en paramètre.
+        </p>
+
+        <p>
+          Cela devrait ressembler à ceci :
+          <a href="http://localhost:8000/api/articles/search?search=spider"
+            >http://localhost:8000/api/articles/search?search=spider</a
+          >.<br />
+          Ici, nous recherchons tous les articles contenant le mot «
+          <strong>spider</strong> » dans leur titre.
+        </p>
+        <p class="alert-info">
+          Astuce 1 : Vous aurez besoin d'une nouvelle méthode dans
+          <code class="language-plaintext highlighter-rouge"
+            >ArticleManager</code
+          >
+          (et d'utiliser un LIKE).<br />
+          Astuce 2 : Votre méthode
+          <code class="language-plaintext highlighter-rouge"
+            >searchArticles()</code
+          >
+          dans
+          <code class="language-plaintext highlighter-rouge"
+            >AjaxController</code
+          >
+          devrait retourner une collection d'articles au format JSON.
+        </p>
+        <p>Par exemple :</p>
+        <div class="language-json highlighter-rouge">
+          <div class="highlight">
+            <pre
+              class="highlight"
+            ><code><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w"> </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Spider-Man : Ami ou Ennemi ?"</span><span class="p">,</span><span class="w"> </span><span class="nl">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jonah Jamesson"</span><span class="p">,</span><span class="w"> </span><span class="nl">"picture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assets/images/article_1.jpg"</span><span class="p">,</span><span class="w"> </span><span class="nl">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-18 00:00:00"</span><span class="p">,</span><span class="w"> </span><span class="nl">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cillum enim dolor nostrud irure sint cupidatat esse nulla ipsum proident nisi. Eiusmod reprehenderit aliqua nostrud mollit. Ex ut in ipsum commodo culpa esse ullamco ex. Anim velit et qui non elit pariatur. Non occaecat est veniam aliquip incididunt duis eiusmod irure magna aute. Irure officia consequat est cillum occaecat officia ipsum culpa sint irure pariatur cillum veniam aliqua. Tempor quis veniam aliqua amet magna laborum consectetur laborum laborum do. Sit anim laborum aliquip eu voluptate do aliqua proident. Ex consectetur occaecat in aliqua labore deserunt duis deserunt eiusmod fugiat. Dolor in quis sint consequat occaecat ea aliquip minim proident labore."</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="p">,</span><span class="w"> </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Un autre Spider-Man ? Un autre criminel"</span><span class="p">,</span><span class="w"> </span><span class="nl">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jonah Jamesson"</span><span class="p">,</span><span class="w"> </span><span class="nl">"picture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assets/images/article_5.jpg"</span><span class="p">,</span><span class="w"> </span><span class="nl">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-05-23 00:00:00"</span><span class="p">,</span><span class="w"> </span><span class="nl">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Minim eiusmod Lorem do exercitation id pariatur non dolore ullamco ea. Magna id veniam eu nulla nostrud velit consectetur ad in fugiat in ea aliqua proident. Ipsum adipisicing minim cupidatat eiusmod aute. Consequat voluptate minim nostrud laboris sunt eiusmod ut ut exercitation qui eiusmod nostrud minim quis. Eu reprehenderit ad eiusmod consequat. Aute pariatur ullamco esse dolor eu eiusmod exercitation do sit amet enim. Cupidatat magna eiusmod fugiat id anim eiusmod consectetur consectetur deserunt tempor esse proident est. Laborum nulla fugiat aliqua elit mollit laboris. Tempor nisi id culpa quis sunt duis in. Ut consectetur incididunt."</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w"> </span></code></pre>
+          </div>
+        </div>
+        <h3 id="fetch-the-route-with-the-search-query">
+          Obtenir la route avec la requête de recherche
+        </h3>
+        <p>
+          Une fois que la méthode fonctionne, retournez dans
+          <code class="language-plaintext highlighter-rouge">script.js</code>
+          pour appeler la route associée
+          <code class="language-plaintext highlighter-rouge"
+            >api/articles/search?search=mySearch</code
+          >
+          avec
+          <code class="language-plaintext highlighter-rouge">fetch()</code>.
+          L'écouteur d'événement associé sera exécuté chaque fois qu'une
+          nouvelle lettre est ajoutée dans le champ de saisie. La chaîne de
+          requête doit utiliser la valeur réelle dans la saisie (c'est déjà fait
+          avec la ligne
+          <code class="language-plaintext highlighter-rouge"
+            >let search = e.target.value;</code
+          >
+          )
+        </p>
+        <h3 id="display-the-response">Afficher la réponse</h3>
+        <p>
+          Une fois que vous obtenez une réponse JSON, vous devez alimenter le
+          <code class="language-plaintext highlighter-rouge"
+            >&lt;ul id="resultList"&gt;</code
+          >
+          avec les titres des articles correspondants.
+        </p>
+      </section>
+      <section>
+        <h2 id="-bonus-titles-clickables">🎁 Bonus : Titres cliquables</h2>
+        <p>
+          Maintenant, rendez ces titres cliquables et envoyez-les à la route
+          <code class="language-plaintext highlighter-rouge">/article</code>
+          (consultez la route dans
+          <code class="language-plaintext highlighter-rouge">routes.php</code>
+          pour savoir ce dont cette route a besoin pour fonctionner) et
+          complétez le contrôleur pour afficher une page avec les détails de
+          l'article.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
